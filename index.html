@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snippet Manager</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
+body{background:#f8fafc;min-height:100vh;padding:20px}
+.container{max-width:500px;margin:auto}
+h2{text-align:center;margin-bottom:15px;color:#0f172a}
+.form{background:white;padding:15px;border-radius:12px;box-shadow:0 4px 12px rgba(0,0,0,0.1);margin-bottom:15px;display:grid;gap:10px}
+input,textarea,select{padding:8px;border:1px solid #e2e8f0;border-radius:6px}
+button{padding:8px;background:#3b82f6;color:white;border:none;border-radius:6px;cursor:pointer}
+.snippets{display:grid;gap:10px}
+.snip{background:white;padding:12px;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.05);position:relative}
+.snip .lang{position:absolute;top:8px;right:8px;background:#e2e8f0;padding:2px 6px;border-radius:4px;font-size:11px}
+.snip pre{background:#0f172a;color:#10b981;padding:8px;border-radius:6px;overflow-x:auto;font-size:12px;margin-top:8px}
+.snip .acts{display:flex;gap:5px;margin-top:8px}
+.snip button{background:#64748b;font-size:11px}
+.snip .del{background:#ef4444}
+</style>
+</head>
+<body>
+<div class="container">
+  <h2>📝 Snippet Manager</h2>
+  <div class="form">
+    <input id="title" placeholder="Nomi">
+    <select id="lang"><option>JS</option><option>HTML</option><option>CSS</option><option>Python</option></select>
+    <textarea id="code" rows="3" placeholder="Kod..."></textarea>
+    <button onclick="add()">➺ Saqlash</button>
+  </div>
+  <div class="snippets" id="list"></div>
+</div>
+<script>
+let snippets=JSON.parse(localStorage.getItem('snippets'))||[];
+function add(){
+  const t=document.getElementById('title').value.trim();
+  const l=document.getElementById('lang').value;
+  const c=document.getElementById('code').value.trim();
+  if(!t||!c)return;
+  snippets.unshift({id:Date.now(),title:t,lang:l,code:c});
+  save();render();document.getElementById('title').value='';document.getElementById('code').value='';
+}
+function del(id){snippets=snippets.filter(s=>s.id!==id);save();render()}
+function copy(id){navigator.clipboard.writeText(snippets.find(s=>s.id===id).code);alert('Nusxalandi!')}
+function save(){localStorage.setItem('snippets',JSON.stringify(snippets))}
+function render(){
+  document.getElementById('list').innerHTML=snippets.map(s=>`
+    <div class="snip"><div class="lang">${s.lang}</div><b>${s.title}</b><pre>${s.code.replace(/</g,'&lt;')}</pre>
+    <div class="acts"><button onclick="copy(${s.id})">📋 Nusxa</button><button class="del" onclick="del(${s.id})">🗑</button></div></div>
+  `).join('');
+}
+render();
+</script>
+</body>
+</html>
